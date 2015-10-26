@@ -6,6 +6,13 @@
 	<artifactId>cas4-overlay</artifactId>
 	<packaging>war</packaging>
 	<version>1.0</version>
+	<properties>
+		<inspektr.version>1.0.5.GA</inspektr.version>
+			<cas.version>4.1.1</cas.version>
+		<maven.compiler.source>1.7</maven.compiler.source>
+		<maven.compiler.target>1.7</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 
 	<build>
 		<plugins>
@@ -54,14 +61,15 @@
 			<artifactId>cas-server-support-ldap</artifactId>
 			<version>${cas.version}</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.github.inspektr</groupId>
+			<artifactId>inspektr-common</artifactId>
+			<version>${inspektr.version}</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
-
-	<properties>
-		<cas.version>4.1.1</cas.version>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 
 	<repositories>
 		<repository>

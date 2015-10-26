@@ -4,6 +4,7 @@
 .settings
 target/
 .idea/
+.springBeans
 .DS_Store
 .idea
 overlays/
