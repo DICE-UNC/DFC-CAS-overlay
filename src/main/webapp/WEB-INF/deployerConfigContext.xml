@@ -104,8 +104,20 @@
 			p:serviceId="^(https?|imaps?)://.*" p:evaluationOrder="10000001" />
 	</util:list>
 
-	<bean id="auditTrailManager"
-		class="com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager" />
+<!--  -	 <bean id="auditTrailManager"
+          class="org.jasig.inspektr.audit.support.Slf4jLoggingAuditTrailManager"
+          p:entrySeparator="${cas.audit.singleline.separator:|}"
+          p:useSingleLine="${cas.audit.singleline:false}"/> -->
+          
+      <bean id="auditTrailManager"
+          class="org.jasig.inspektr.audit.support.Slf4jLoggingAuditTrailManager"
+          p:entrySeparator="${cas.audit.singleline.separator:|}"
+          p:useSingleLine="${cas.audit.singleline:false}"/>
+
+    <util:list id="monitorsList">
+        <ref bean="memoryMonitor" />
+        <ref bean="sessionMonitor" />
+    </util:list>
 
 	<bean id="healthCheckMonitor" class="org.jasig.cas.monitor.HealthCheckMonitor"
 		p:monitors-ref="monitorsList" />
