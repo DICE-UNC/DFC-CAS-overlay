@@ -20,7 +20,7 @@
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
 	<bean id="authenticationManager"
-		class="org.jasig.cas.authentication.PolicyBasedAuthenticationManager"  p:authenticationPolicy-ref="authenticationPolicy">
+		class="org.irods.de.cas.authentication.AdPolicyBasedAuthenticationManager"  p:authenticationPolicy-ref="authenticationPolicy">
 		<constructor-arg>
 			<list>
 				<ref bean="ldapAuthenticationHandler" />
@@ -103,6 +103,7 @@
 <bean id="connectionConfig" class="org.ldaptive.ConnectionConfig"
       p:ldapUrl="${ldap.url}"
       p:connectTimeout="${ldap.connectTimeout}"
+      p:useSSL="true"
       p:useStartTLS="${ldap.useStartTLS}"
       p:sslConfig-ref="sslConfig"/>
 
