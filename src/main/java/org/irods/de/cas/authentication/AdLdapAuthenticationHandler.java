@@ -187,9 +187,11 @@ public class AdLdapAuthenticationHandler extends AbstractUsernamePasswordAuthent
         logger.debug("LDAP response: {}", response);
 
         final List<MessageDescriptor> messageList;
+        logger.info("DFC LOGGING: Before LdapPolicyConfiguration");
         
         final LdapPasswordPolicyConfiguration ldapPasswordPolicyConfiguration =
                 (LdapPasswordPolicyConfiguration) super.getPasswordPolicyConfiguration();
+        logger.info("DFC LOGGING: After LdapPolicyConfiguration");
         if (ldapPasswordPolicyConfiguration != null) {
             logger.debug("Applying password policy to {}", response);
             messageList = ldapPasswordPolicyConfiguration.getAccountStateHandler().handle(
@@ -197,10 +199,12 @@ public class AdLdapAuthenticationHandler extends AbstractUsernamePasswordAuthent
         } else {
             messageList = Collections.emptyList();
         }
-        
+        logger.info("DFC LOGGING: Before response.getResult");
         if (response.getResult()) {
+        	logger.info("DFC LOGGING: Before returning createHandlerResult");
             return createHandlerResult(upc, createPrincipal(upc.getUsername(), response.getLdapEntry()), messageList);
         }
+        logger.info("DFC LOGGING: After response.getResult");
 
         if (AuthenticationResultCode.DN_RESOLUTION_FAILURE == response.getAuthenticationResultCode()) {
             throw new AccountNotFoundException(upc.getUsername() + " not found.");
