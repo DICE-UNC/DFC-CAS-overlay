@@ -64,7 +64,7 @@
     </property>
 </bean>
 
-<bean id="authenticator" class="org.ldaptive.auth.Authenticator"
+<bean id="authenticator" class="org.irods.de.cas.authentication.AdAuthenticator"
       c:resolver-ref="dnResolver"
       c:handler-ref="authHandler"
       p:entryResolver-ref="entryResolver" />
