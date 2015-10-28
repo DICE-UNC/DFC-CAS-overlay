@@ -46,7 +46,7 @@
    | e.g. userPrincipalName, for the NetID
    -->
 <bean id="ldapAuthenticationHandler"
-      class="org.jasig.cas.authentication.LdapAuthenticationHandler"
+      class="org.irods.de.cas.authentication.AdLdapAuthenticationHandler"
       p:principalIdAttribute="sAMAccountName"
       c:authenticator-ref="authenticator">
     <property name="principalAttributeMap">

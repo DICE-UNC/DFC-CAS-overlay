@@ -61,7 +61,6 @@
 			<artifactId>cas-server-support-ldap</artifactId>
 			<version>${cas.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.github.inspektr</groupId>
 			<artifactId>inspektr-common</artifactId>
