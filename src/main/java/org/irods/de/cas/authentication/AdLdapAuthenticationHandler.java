@@ -175,13 +175,15 @@ public class AdLdapAuthenticationHandler extends AbstractUsernamePasswordAuthent
             throws GeneralSecurityException, PreventedException {
         final AuthenticationResponse response;
         try {
-            logger.debug("Attempting LDAP authentication for {}", upc);
+            logger.debug("DFCAttempting LDAP authentication for {}", upc);
             final String password = getPasswordEncoder().encode(upc.getPassword());
             final AuthenticationRequest request = new AuthenticationRequest(upc.getUsername(),
                     new org.ldaptive.Credential(password),
                     this.authenticatedEntryAttributes);
+            logger.debug("DFCcalling authenticatorAuthenticate:{}", request);
             response = this.authenticator.authenticate(request);
         } catch (final LdapException e) {
+        	logger.error("unexpectedLDAPError", e);
             throw new PreventedException("Unexpected LDAP error", e);
         }
         logger.debug("LDAP response: {}", response);
@@ -192,6 +194,7 @@ public class AdLdapAuthenticationHandler extends AbstractUsernamePasswordAuthent
         final LdapPasswordPolicyConfiguration ldapPasswordPolicyConfiguration =
                 (LdapPasswordPolicyConfiguration) super.getPasswordPolicyConfiguration();
         logger.info("DFC LOGGING: After LdapPolicyConfiguration");
+        logger.debug("ldapPasswordPolicyConfiguration:{}", ldapPasswordPolicyConfiguration);
         if (ldapPasswordPolicyConfiguration != null) {
             logger.debug("Applying password policy to {}", response);
             messageList = ldapPasswordPolicyConfiguration.getAccountStateHandler().handle(
@@ -202,7 +205,12 @@ public class AdLdapAuthenticationHandler extends AbstractUsernamePasswordAuthent
         logger.info("DFC LOGGING: Before response.getResult");
         if (response.getResult()) {
         	logger.info("DFC LOGGING: Before returning createHandlerResult");
-            return createHandlerResult(upc, createPrincipal(upc.getUsername(), response.getLdapEntry()), messageList);
+        	logger.debug("upc:{}", upc);
+        	logger.debug("principal from user name:{}", upc.getUsername());
+        	logger.debug("response ldap entry:{}", response.getLdapEntry());
+        	HandlerResult handlerResult = createHandlerResult(upc, createPrincipal(upc.getUsername(), response.getLdapEntry()), messageList);
+        	logger.debug("DFC HandlerResult:{}", handlerResult);
+        	return handlerResult;
         }
         logger.info("DFC LOGGING: After response.getResult");
 
