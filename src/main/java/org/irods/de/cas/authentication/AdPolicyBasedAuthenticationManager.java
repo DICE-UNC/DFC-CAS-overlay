@@ -254,12 +254,14 @@ public class AdPolicyBasedAuthenticationManager implements AuthenticationManager
         final AuthenticationBuilder builder = new DefaultAuthenticationBuilder(NullPrincipal.getInstance());
         for (final Credential c : credentials) {
             builder.addCredential(new BasicCredentialMetaData(c));
+            logger.debug("credential:{}", c);
         }
         boolean found;
         for (final Credential credential : credentials) {
             found = false;
             for (final Map.Entry<AuthenticationHandler, PrincipalResolver> entry : this.handlerResolverMap.entrySet()) {
                 final AuthenticationHandler handler = entry.getKey();
+                logger.debug("handler:{}", handler);
                 if (handler.supports(credential)) {
                     found = true;
                     logger.info("DFC LOGGING: found={}", found);

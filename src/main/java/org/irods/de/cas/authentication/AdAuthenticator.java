@@ -246,23 +246,32 @@ public class AdAuthenticator extends Authenticator
     final AuthenticationRequest request)
     throws LdapException
   {
+	  
+	  logger.debug("DFCauthenticate()");
+	  
     logger.debug("authenticate dn={} with request={}", dn, request);
 
     final AuthenticationResponse invalidInput = validateInput(dn, request);
+    
+    logger.debug("invalidInput?: {}", invalidInput);
     if (invalidInput != null) {
+       logger.debug("it's not null so return");
       return invalidInput;
     }
 
     LdapEntry entry = null;
 
     AuthenticationHandlerResponse response = null;
+    logger.debug("DFCattempting authentication...");
     try {
       final AuthenticationCriteria ac = new AuthenticationCriteria(dn, request);
-
+      logger.debug("AuthenticationCriteria:{}", ac);
       // attempt to authenticate as this dn
       response = getAuthenticationHandler().authenticate(ac);
+      logger.debug("authenticating as this dn gives response:{}", response);
       // resolve the entry
       entry = resolveEntry(request, response, ac);
+      logger.debug("entry:{}", entry);
     } finally {
       if (response != null && response.getConnection() != null) {
         response.getConnection().close();
@@ -270,7 +279,7 @@ public class AdAuthenticator extends Authenticator
     }
 
     logger.info(
-      "Authentication {} for dn: {}",
+      "DFCAuthentication {} for dn: {}",
       response.getResult() ? "succeeded" : "failed",
       dn);
 
@@ -284,6 +293,7 @@ public class AdAuthenticator extends Authenticator
       response.getControls(),
       response.getMessageId());
 
+    logger.debug("DFCauthResponse:{}", authResponse);
     // execute authentication response handlers
     if (
       getAuthenticationResponseHandlers() != null &&
@@ -375,20 +385,26 @@ public class AdAuthenticator extends Authenticator
     final AuthenticationCriteria criteria)
     throws LdapException
   {
+	  logger.debug("resolveEntry()");
     LdapEntry entry = null;
     EntryResolver er;
     if (resolveEntryOnFailure || response.getResult()) {
       if (entryResolver != null) {
         er = entryResolver;
+        logger.debug("entryResolver != null:{}", er);
       } else if (
         !ReturnAttributes.NONE.equalsAttributes(
             request.getReturnAttributes())) {
+    	logger.debug("creating new SearchEntryResolver");
         er = new SearchEntryResolver();
       } else {
+    	logger.debug("setting noop-resolver");
         er = NOOP_RESOLVER;
       }
       try {
+    	logger.debug("calling er.resolve()");
         entry = er.resolve(response.getConnection(), criteria);
+        logger.debug("entry from er.resolve(): {}", entry);
         logger.trace("resolved entry={} with resolver={}", entry, er);
       } catch (LdapException e) {
         logger.debug("entry resolution failed for resolver={}", er, e);
