@@ -93,7 +93,7 @@ public class AdLdapAuthenticationHandler extends AbstractUsernamePasswordAuthent
     private boolean allowMultiplePrincipalAttributeValues;
 
     /** Set of LDAP attributes fetch from an entry as part of the authentication process. */
-    private String[] authenticatedEntryAttributes = ReturnAttributes.NONE.value();
+    private String[] authenticatedEntryAttributes = ReturnAttributes.ALL.value();
 
     /**
      * Creates a new authentication handler that delegates to the given authenticator.
