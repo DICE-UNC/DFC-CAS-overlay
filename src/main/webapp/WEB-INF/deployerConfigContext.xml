@@ -18,6 +18,20 @@
        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+       
+       <bean id="authenticationManager"
+		class="org.jasig.cas.authentication.PolicyBasedAuthenticationManager"  p:authenticationPolicy-ref="authenticationPolicy">
+		<constructor-arg>
+			<list>
+				<ref bean="ldapAuthenticationHandler" />
+				<!--  <entry key-ref="proxyAuthenticationHandler" value-ref="proxyPrincipalResolver" /> -->
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	
+	<bean name="authenticationPolicy" class="org.jasig.cas.authentication.AnyAuthenticationPolicy"/>
+       
 
 	<bean id="ldapAuthenticationHandler" class="org.jasig.cas.authentication.LdapAuthenticationHandler"
 		p:principalIdAttribute="mail" c:authenticator-ref="authenticator">
