@@ -19,107 +19,87 @@
        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-	<bean id="ldapAuthenticationHandler"
-      class="org.jasig.cas.authentication.LdapAuthenticationHandler"
-      p:principalIdAttribute="mail"
-      c:authenticator-ref="authenticator">
-    <property name="principalAttributeMap">
-        <map>
-            <!--
-               | This map provides a simple attribute resolution mechanism.
-               | Keys are LDAP attribute names, values are CAS attribute names.
-               | Use this facility instead of a PrincipalResolver if LDAP is
-               | the only attribute source.
-               -->
-            <entry key="member" value="member" />
-            <entry key="mail" value="mail" />
-            <entry key="displayName" value="displayName" />
-        </map>
-    </property>
-</bean>
+	<bean id="ldapAuthenticationHandler" class="org.jasig.cas.authentication.LdapAuthenticationHandler"
+		p:principalIdAttribute="mail" c:authenticator-ref="authenticator">
+		<property name="principalAttributeMap">
+			<map>
+				<!-- | This map provides a simple attribute resolution mechanism. | Keys 
+					are LDAP attribute names, values are CAS attribute names. | Use this facility 
+					instead of a PrincipalResolver if LDAP is | the only attribute source. -->
+				<entry key="member" value="member" />
+				<entry key="mail" value="mail" />
+				<entry key="displayName" value="displayName" />
+			</map>
+		</property>
+	</bean>
 
-<bean id="authenticator" class="org.ldaptive.auth.Authenticator"
-      c:resolver-ref="dnResolver"
-      c:handler-ref="authHandler" />
+	<bean id="authenticator" class="org.ldaptive.auth.Authenticator"
+		c:resolver-ref="dnResolver" c:handler-ref="authHandler" />
 
-<bean id="dnResolver" class="org.ldaptive.auth.PooledSearchDnResolver"
-      p:baseDn="${ldap.authn.baseDn}"
-      p:subtreeSearch="true"
-      p:allowMultipleDns="false"
-      p:connectionFactory-ref="searchPooledLdapConnectionFactory"
-      p:userFilter="${ldap.authn.searchFilter}" />
+	<bean id="dnResolver" class="org.ldaptive.auth.PooledSearchDnResolver"
+		p:baseDn="${ldap.authn.baseDn}" p:subtreeSearch="true"
+		p:allowMultipleDns="false" p:connectionFactory-ref="searchPooledLdapConnectionFactory"
+		p:userFilter="${ldap.authn.searchFilter}" />
 
-<bean id="searchPooledLdapConnectionFactory"
-      class="org.ldaptive.pool.PooledConnectionFactory"
-      p:connectionPool-ref="searchConnectionPool" />
+	<bean id="searchPooledLdapConnectionFactory" class="org.ldaptive.pool.PooledConnectionFactory"
+		p:connectionPool-ref="searchConnectionPool" />
 
-<bean id="searchConnectionPool" parent="abstractConnectionPool"
-      p:connectionFactory-ref="searchConnectionFactory" />
+	<bean id="searchConnectionPool" parent="abstractConnectionPool"
+		p:connectionFactory-ref="searchConnectionFactory" />
 
-<bean id="searchConnectionFactory"
-      class="org.ldaptive.DefaultConnectionFactory"
-      p:connectionConfig-ref="searchConnectionConfig" />
+	<bean id="searchConnectionFactory" class="org.ldaptive.DefaultConnectionFactory"
+		p:connectionConfig-ref="searchConnectionConfig" />
 
-<bean id="searchConnectionConfig" parent="abstractConnectionConfig"
-      p:connectionInitializer-ref="bindConnectionInitializer" />
+	<bean id="searchConnectionConfig" parent="abstractConnectionConfig"
+		p:connectionInitializer-ref="bindConnectionInitializer" />
 
-<bean id="bindConnectionInitializer"
-      class="org.ldaptive.BindConnectionInitializer"
-      p:bindDn="${ldap.authn.managerDN}">
-    <property name="bindCredential">
-        <bean class="org.ldaptive.Credential"
-              c:password="${ldap.authn.managerPassword}" />
-    </property>
-</bean>
+	<bean id="bindConnectionInitializer" class="org.ldaptive.BindConnectionInitializer"
+		p:bindDn="${ldap.authn.managerDN}">
+		<property name="bindCredential">
+			<bean class="org.ldaptive.Credential" c:password="${ldap.authn.managerPassword}" />
+		</property>
+	</bean>
 
-<bean id="abstractConnectionPool" abstract="true"
-      class="org.ldaptive.pool.BlockingConnectionPool"
-      init-method="initialize"
-      destroy-method="close"
-      p:poolConfig-ref="ldapPoolConfig"
-      p:blockWaitTime="${ldap.pool.blockWaitTime}"
-      p:validator-ref="searchValidator"
-      p:pruneStrategy-ref="pruneStrategy" />
+	<bean id="abstractConnectionPool" abstract="true"
+		class="org.ldaptive.pool.BlockingConnectionPool" init-method="initialize"
+		destroy-method="close" p:poolConfig-ref="ldapPoolConfig"
+		p:blockWaitTime="${ldap.pool.blockWaitTime}" p:validator-ref="searchValidator"
+		p:pruneStrategy-ref="pruneStrategy" />
 
-<bean id="abstractConnectionConfig" abstract="true"
-      class="org.ldaptive.ConnectionConfig"
-      p:ldapUrl="${ldap.url}"
-      p:connectTimeout="${ldap.connectTimeout}"
-      p:useStartTLS="${ldap.useStartTLS}"
-      p:sslConfig-ref="sslConfig" />
+	<bean id="abstractConnectionConfig" abstract="true"
+		class="org.ldaptive.ConnectionConfig" p:ldapUrl="${ldap.url}"
+		p:connectTimeout="${ldap.connectTimeout}" p:useStartTLS="${ldap.useStartTLS}"
+		p:sslConfig-ref="sslConfig" />
 
-<bean id="ldapPoolConfig" class="org.ldaptive.pool.PoolConfig"
-      p:minPoolSize="${ldap.pool.minSize}"
-      p:maxPoolSize="${ldap.pool.maxSize}"
-      p:validateOnCheckOut="${ldap.pool.validateOnCheckout}"
-      p:validatePeriodically="${ldap.pool.validatePeriodically}"
-      p:validatePeriod="${ldap.pool.validatePeriod}" />
+	<bean id="ldapPoolConfig" class="org.ldaptive.pool.PoolConfig"
+		p:minPoolSize="${ldap.pool.minSize}" p:maxPoolSize="${ldap.pool.maxSize}"
+		p:validateOnCheckOut="${ldap.pool.validateOnCheckout}"
+		p:validatePeriodically="${ldap.pool.validatePeriodically}"
+		p:validatePeriod="${ldap.pool.validatePeriod}" />
 
-<bean id="sslConfig" class="org.ldaptive.ssl.SslConfig">
-    <property name="credentialConfig">
-        <bean class="org.ldaptive.ssl.X509CredentialConfig"
-              p:trustCertificates="${ldap.trustedCert}" />
-    </property>
-</bean>
+	<bean id="sslConfig" class="org.ldaptive.ssl.SslConfig">
+		<property name="credentialConfig">
+			<bean class="org.ldaptive.ssl.X509CredentialConfig"
+				p:trustCertificates="${ldap.trustedCert}" />
+		</property>
+	</bean>
 
-<bean id="pruneStrategy" class="org.ldaptive.pool.IdlePruneStrategy"
-      p:prunePeriod="${ldap.pool.prunePeriod}"
-      p:idleTime="${ldap.pool.idleTime}" />
+	<bean id="pruneStrategy" class="org.ldaptive.pool.IdlePruneStrategy"
+		p:prunePeriod="${ldap.pool.prunePeriod}" p:idleTime="${ldap.pool.idleTime}" />
 
-<bean id="searchValidator" class="org.ldaptive.pool.SearchValidator" />
+	<bean id="searchValidator" class="org.ldaptive.pool.SearchValidator" />
 
-<bean id="authHandler" class="org.ldaptive.auth.PooledBindAuthenticationHandler"
-      p:connectionFactory-ref="bindPooledLdapConnectionFactory" />
+	<bean id="authHandler" class="org.ldaptive.auth.PooledBindAuthenticationHandler"
+		p:connectionFactory-ref="bindPooledLdapConnectionFactory" />
 
-<bean id="bindPooledLdapConnectionFactory"
-      class="org.ldaptive.pool.PooledConnectionFactory"
-      p:connectionPool-ref="bindConnectionPool" />
+	<bean id="bindPooledLdapConnectionFactory" class="org.ldaptive.pool.PooledConnectionFactory"
+		p:connectionPool-ref="bindConnectionPool" />
 
-<bean id="bindConnectionPool" parent="abstractConnectionPool"
-      p:connectionFactory-ref="bindConnectionFactory" />
+	<bean id="bindConnectionPool" parent="abstractConnectionPool"
+		p:connectionFactory-ref="bindConnectionFactory" />
 
-<bean id="bindConnectionFactory"
-      class="org.ldaptive.DefaultConnectionFactory"
-      p:connectionConfig-ref="bindConnectionConfig" />
+	<bean id="bindConnectionFactory" class="org.ldaptive.DefaultConnectionFactory"
+		p:connectionConfig-ref="bindConnectionConfig" />
 
-<bean id="bindConnectionConfig" parent="abstractConnectionConfig" />
+	<bean id="bindConnectionConfig" parent="abstractConnectionConfig" />
+</beans>
