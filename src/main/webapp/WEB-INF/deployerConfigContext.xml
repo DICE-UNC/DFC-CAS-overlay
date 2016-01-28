@@ -56,7 +56,7 @@
 		c:resolver-ref="dnResolver" c:handler-ref="ldapAuthHandler" />
 
 	<bean id="dnResolver" class="org.ldaptive.auth.FormatDnResolver"
-		c:format="uid=%s,${ldap.baseDn}" />
+		c:format="uid=%s,${ldap.authn.baseDn}" />
 
 	<bean id="ldapAuthHandler" class="org.ldaptive.auth.PooledBindAuthenticationHandler"
 		p:connectionFactory-ref="pooledLdapConnectionFactory" />
