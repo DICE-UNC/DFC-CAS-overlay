@@ -45,11 +45,7 @@
       class="org.irods.de.cas.ldap.LabLdapAuthenticationHandler"
       p:principalIdAttribute="uid"
       c:authenticator-ref="authenticator">
-    <property name="principalAttributeMap">
-        <map>
-            
-        </map>
-    </property>
+   
 </bean>
 
 <bean id="authenticator" class="org.ldaptive.auth.Authenticator"
