@@ -41,60 +41,89 @@
 		class="org.jasig.cas.authentication.principal.BasicPrincipalResolver" />
 
 -->
-	<bean id="ldapAuthenticationHandler" class="org.jasig.cas.authentication.LdapAuthenticationHandler"
-		p:principalIdAttribute="uid" c:authenticator-ref="ldapAuthenticator">
-		<property name="principalAttributeMap">
-			<map>
-				<entry key="member" value="member" />
-				<entry key="mail" value="mail" />
-				<entry key="displayName" value="displayName" />
-			</map>
-		</property>
-	</bean>
+	<bean id="ldapAuthenticationHandler"
+      class="org.jasig.cas.authentication.LdapAuthenticationHandler"
+      p:principalIdAttribute="uid"
+      c:authenticator-ref="authenticator">
+    <property name="principalAttributeMap">
+        <map>
+            <!--
+               | This map provides a simple attribute resolution mechanism.
+               | Keys are LDAP attribute names, values are CAS attribute names.
+               | Use this facility instead of a PrincipalResolver if LDAP is
+               | the only attribute source.
+               -->
+            <entry key="member" value="member" />
+            <entry key="mail" value="mail" />
+            <entry key="displayName" value="displayName" />
+        </map>
+    </property>
+</bean>
 
-	<bean id="ldapAuthenticator" class="org.ldaptive.auth.Authenticator"
-		c:resolver-ref="dnResolver" c:handler-ref="ldapAuthHandler" />
+<bean id="authenticator" class="org.ldaptive.auth.Authenticator"
+      c:resolver-ref="dnResolver"
+      c:handler-ref="authHandler" />
 
-<!--  <bean id="dnResolver" class="org.ldaptive.auth.FormatDnResolver"
-		c:format="uid=%s,${ldap.authn.baseDn}" /> -->	
-		
-		
-	<bean id="dnResolver" class="org.ldaptive.auth.FormatDnResolver"
-		c:format="cn=%s,${ldap.authn.baseDn}" />
+<bean id="dnResolver" class="org.ldaptive.auth.PooledSearchDnResolver"
+      p:baseDn="${ldap.authn.baseDn}"
+      p:subtreeSearch="true"
+      p:allowMultipleDns="false"
+      p:connectionFactory-ref="searchPooledLdapConnectionFactory"
+      p:userFilter="${ldap.authn.searchFilter}" />
 
-	<bean id="ldapAuthHandler" class="org.ldaptive.auth.PooledBindAuthenticationHandler"
-		p:connectionFactory-ref="pooledLdapConnectionFactory" />
+<bean id="searchPooledLdapConnectionFactory"
+      class="org.ldaptive.pool.PooledConnectionFactory"
+      p:connectionPool-ref="searchConnectionPool" />
 
-	<bean id="pooledLdapConnectionFactory" class="org.ldaptive.pool.PooledConnectionFactory"
-		p:connectionPool-ref="connectionPool" />
+<bean id="searchConnectionPool" parent="abstractConnectionPool" />
 
-	<bean id="connectionPool" class="org.ldaptive.pool.BlockingConnectionPool"
-		init-method="initialize" p:poolConfig-ref="ldapPoolConfig"
-		p:blockWaitTime="${ldap.pool.blockWaitTime}" p:validator-ref="searchValidator"
-		p:pruneStrategy-ref="pruneStrategy" p:connectionFactory-ref="connectionFactory" />
+<bean id="abstractConnectionPool" abstract="true"
+      class="org.ldaptive.pool.BlockingConnectionPool"
+      init-method="initialize"
+      destroy-method="close"
+      p:poolConfig-ref="ldapPoolConfig"
+      p:blockWaitTime="${ldap.pool.blockWaitTime}"
+      p:validator-ref="searchValidator"
+      p:pruneStrategy-ref="pruneStrategy"
+      p:connectionFactory-ref="connectionFactory" />
 
-	<bean id="ldapPoolConfig" class="org.ldaptive.pool.PoolConfig"
-		p:minPoolSize="${ldap.pool.minSize}" p:maxPoolSize="${ldap.pool.maxSize}"
-		p:validateOnCheckOut="${ldap.pool.validateOnCheckout}"
-		p:validatePeriodically="${ldap.pool.validatePeriodically}"
-		p:validatePeriod="${ldap.pool.validatePeriod}" />
+<bean id="ldapPoolConfig" class="org.ldaptive.pool.PoolConfig"
+      p:minPoolSize="${ldap.pool.minSize}"
+      p:maxPoolSize="${ldap.pool.maxSize}"
+      p:validateOnCheckOut="${ldap.pool.validateOnCheckout}"
+      p:validatePeriodically="${ldap.pool.validatePeriodically}"
+      p:validatePeriod="${ldap.pool.validatePeriod}" />
 
-	<bean id="connectionFactory" class="org.ldaptive.DefaultConnectionFactory"
-		p:connectionConfig-ref="connectionConfig" />
+<bean id="connectionFactory" class="org.ldaptive.DefaultConnectionFactory"
+      p:connectionConfig-ref="connectionConfig" />
 
-	<bean id="connectionConfig" class="org.ldaptive.ConnectionConfig"
-		p:ldapUrl="${ldap.url}" p:connectTimeout="${ldap.connectTimeout}"
-		p:useStartTLS="${ldap.useStartTLS}" />
+<bean id="connectionConfig" class="org.ldaptive.ConnectionConfig"
+      p:ldapUrl="${ldap.url}"
+      p:connectTimeout="${ldap.connectTimeout}"
+      p:useStartTLS="${ldap.useStartTLS}"
+      p:sslConfig-ref="sslConfig" />
 
-	<!-- needs review, tired of fighting it p:sslConfig-ref="sslConfig" /> <bean 
-		id="sslConfig" class="org.ldaptive.ssl.SslConfig"> <property name="credentialConfig"> 
-		<bean class="org.ldaptive.ssl.X509CredentialConfig" p:trustCertificates="${ldap.trustedCert}" 
-		/> </property> </bean> -->
+<bean id="sslConfig" class="org.ldaptive.ssl.SslConfig">
+    <property name="credentialConfig">
+        <bean class="org.ldaptive.ssl.X509CredentialConfig"
+              p:trustCertificates="${ldap.trustedCert}" />
+    </property>
+</bean>
 
-	<bean id="pruneStrategy" class="org.ldaptive.pool.IdlePruneStrategy"
-		p:prunePeriod="${ldap.pool.prunePeriod}" p:idleTime="${ldap.pool.idleTime}" />
+<bean id="pruneStrategy" class="org.ldaptive.pool.IdlePruneStrategy"
+      p:prunePeriod="${ldap.pool.prunePeriod}"
+      p:idleTime="${ldap.pool.idleTime}" />
 
-	<bean id="searchValidator" class="org.ldaptive.pool.SearchValidator" />
+<bean id="searchValidator" class="org.ldaptive.pool.SearchValidator" />
+
+<bean id="authHandler" class="org.ldaptive.auth.PooledBindAuthenticationHandler"
+      p:connectionFactory-ref="bindPooledLdapConnectionFactory" />
+
+<bean id="bindPooledLdapConnectionFactory"
+      class="org.ldaptive.pool.PooledConnectionFactory"
+      p:connectionPool-ref="bindConnectionPool" />
+
+<bean id="bindConnectionPool" parent="abstractConnectionPool" />
 
 	<!-- Sample, in-memory data store for the ServiceRegistry. A real implementation 
 		would probably want to replace this with the JPA-backed ServiceRegistry DAO 
