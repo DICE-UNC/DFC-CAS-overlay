@@ -28,7 +28,7 @@
 							<artifactId>cas-server-webapp</artifactId>
 							<excludes>
 								<exclude>WEB-INF/cas.properties</exclude>
-								<exclude>WEB-INF/classes/logxxx4j2.xml</exclude>
+								<exclude>WEB-INF/classes/log4j2.xml</exclude>
 							</excludes>
 						</overlay>
 					</overlays>
