@@ -4,15 +4,22 @@
 package org.irods.de.cas.ldap;
 
 
-import com.google.common.base.Functions;
-import com.google.common.collect.Maps;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.security.auth.login.AccountNotFoundException;
+import javax.security.auth.login.FailedLoginException;
+import javax.security.auth.login.LoginException;
+import javax.validation.constraints.NotNull;
 
 import org.jasig.cas.MessageDescriptor;
-import org.jasig.cas.authentication.Credential;
 import org.jasig.cas.authentication.HandlerResult;
+import org.jasig.cas.authentication.LdapAuthenticationHandler;
 import org.jasig.cas.authentication.PreventedException;
 import org.jasig.cas.authentication.UsernamePasswordCredential;
-import org.jasig.cas.authentication.handler.support.AbstractUsernamePasswordAuthenticationHandler;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.authentication.support.LdapPasswordPolicyConfiguration;
 import org.ldaptive.LdapAttribute;
@@ -24,28 +31,15 @@ import org.ldaptive.auth.AuthenticationResponse;
 import org.ldaptive.auth.AuthenticationResultCode;
 import org.ldaptive.auth.Authenticator;
 
-import javax.annotation.PostConstruct;
-import javax.security.auth.login.AccountNotFoundException;
-import javax.security.auth.login.FailedLoginException;
-import javax.security.auth.login.LoginException;
-import javax.validation.constraints.NotNull;
-
-import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * @author mconway
  *
  */
 public class LabLdapAuthenticationHandler extends
-		AbstractUsernamePasswordAuthenticationHandler {
+LdapAuthenticationHandler {
 	
-	   /** Mapping of LDAP attribute name to principal attribute name. */
+
+	/** Mapping of LDAP attribute name to principal attribute name. */
     @NotNull
     protected Map<String, String> principalAttributeMap = Collections.emptyMap();
 
@@ -58,6 +52,7 @@ public class LabLdapAuthenticationHandler extends
      **/
     @NotNull
     private final Authenticator authenticator;
+
 
 
   
@@ -74,14 +69,12 @@ public class LabLdapAuthenticationHandler extends
     /** Set of LDAP attributes fetch from an entry as part of the authentication process. */
     private String[] authenticatedEntryAttributes = ReturnAttributes.ALL.value();
     
-    /**
-     * Creates a new authentication handler that delegates to the given authenticator.
-     *
-     * @param  authenticator  Ldaptive authenticator component.
-     */
-    public LabLdapAuthenticationHandler(@NotNull final Authenticator authenticator) {
-        this.authenticator = authenticator;
-    }
+
+	   public LabLdapAuthenticationHandler(Authenticator authenticator) {
+		   super(authenticator);
+		this.authenticator = authenticator;
+		
+	}
 
 
 	/* (non-Javadoc)
